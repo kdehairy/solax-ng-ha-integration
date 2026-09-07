@@ -1,0 +1,107 @@
+[project]
+name = "solax-integration"
+version = "0.1.0"
+description = "SolaX Power custom integration for Home Assistant"
+readme = "README.md"
+requires-python = ">=3.14.2"
+license = {text = "Apache-2.0"}
+authors = [
+    {name = "Home Assistant Contributors"}
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "homeassistant>=2024.4.0",
+    "solax==3.2.4",
+]
+
+[build-system]
+requires = ["uv_build>=0.12.5,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest-homeassistant-custom-component==0.13.364",
+    "black>=24.1.1",
+    "isort>=5.13.0",
+    "mypy>=1.8.0",
+    "flake8>=7.0.0",
+    "pylint>=3.0.0",
+]
+
+[tool.uv.build-backend]
+module-root = ""
+module-name = "custom_components.solax"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = [
+    "-v",
+    "--strict-markers",
+    "--tb=short",
+]
+
+[tool.coverage.run]
+source = ["custom_components/solax"]
+omit = [
+    "tests/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+]
+
+[tool.mypy]
+exclude = [
+    "conftest.py",
+]
+mypy_path = "."
+explicit_package_bases = true
+python_version = "3.14"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+
+[[tool.mypy.overrides]]
+module = [
+    "solax.*",
+    "pytest_homeassistant_custom_component.*",
+]
+ignore_missing_imports = true
+
+[tool.black]
+# Pinned so black does not infer a newer target than the interpreter it runs
+# under, which otherwise disables its AST-equivalence safety check.
+target-version = ["py314"]
+
+[tool.pylint.main]
+py-version = "3.14"
+# `custom_components` is a PEP 420 namespace directory (no `__init__.py`, as
+# required by the uv build backend). Without an explicit source root, pylint
+# names this package plain `solax`, which then shadows the real `solax`
+# dependency and produces bogus import-error/import-self/cyclic-import reports.
+source-roots = ["."]
+
+[tool.pylint.design]
+# Home Assistant entity constructors and parametrized tests legitimately take
+# more arguments than pylint's default of 5.
+max-args = 10
+max-positional-arguments = 10

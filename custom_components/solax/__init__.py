@@ -1,13 +1,10 @@
 """The solax component."""
 
 import asyncio
+import logging
 from dataclasses import dataclass
 from datetime import timedelta
-import logging
 from typing import Any
-
-from solax import InverterResponse, RealTimeAPI, discover
-from solax.inverter import InverterError
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
@@ -20,6 +17,8 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.update_coordinator import UpdateFailed
+from solax import InverterResponse, RealTimeAPI, discover
+from solax.inverter import InverterError
 
 from .const import INVERTER_MODELS
 from .coordinator import SolaxDataUpdateCoordinator
@@ -47,7 +46,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: SolaxConfigEntry) -> boo
 
     kwargs: dict[str, Any] = {"return_when": asyncio.FIRST_COMPLETED}
     if model := entry.data.get(CONF_MODEL):
-        kwargs["inverters"] = [INVERTER_MODELS[model]]
+        kwargs["inverters"] = [INVERTER_MODELS[model].load()]
 
     try:
         inverter = await discover(

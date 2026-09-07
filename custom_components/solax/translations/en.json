@@ -8,15 +8,19 @@
             "unknown": "Unexpected error"
         },
         "step": {
+            "select_model": {
+                "data": {
+                    "model": "Inverter model"
+                },
+                "data_description": {
+                    "model": "Multiple inverter models responded at this address. Select the one that matches your device."
+                }
+            },
             "user": {
                 "data": {
                     "ip_address": "IP address",
-                    "model": "Inverter model",
                     "password": "Password",
                     "port": "Port"
-                },
-                "data_description": {
-                    "model": "Leave blank to automatically detect the inverter model"
                 }
             }
         }

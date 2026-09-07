@@ -1,2 +1,23 @@
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.hypothesis/
+*.log
+.venv/
+
+# Test files
+*.test.js
+*.spec.js
+*.test.ts
+*.spec.ts

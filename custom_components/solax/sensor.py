@@ -2,8 +2,6 @@
 
 from typing import override
 
-from solax.units import Units
-
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
@@ -23,9 +21,10 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from solax.units import Units
 
 from . import SolaxConfigEntry
-from .const import DOMAIN, MANUFACTURER
+from .const import DOMAIN, MANUFACTURER, model_name_for_inverter
 from .coordinator import SolaxDataUpdateCoordinator
 
 DEFAULT_PORT = 80
@@ -87,7 +86,7 @@ SENSOR_DESCRIPTIONS: dict[tuple[Units, bool], SensorEntityDescription] = {
 
 
 async def async_setup_entry(
-    hass: HomeAssistant,
+    hass: HomeAssistant,  # pylint: disable=unused-argument
     entry: SolaxConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
@@ -97,6 +96,7 @@ async def async_setup_entry(
     resp = coordinator.data
     serial = resp.serial_number
     version = resp.version
+    model = model_name_for_inverter(api.inverter)
     entities: list[InverterSensorEntity] = []
     for sensor, (idx, measurement) in api.inverter.sensor_map().items():
         description = SENSOR_DESCRIPTIONS[(measurement.unit, measurement.is_monotonic)]
@@ -109,6 +109,7 @@ async def async_setup_entry(
                 uid,
                 serial,
                 version,
+                model,
                 sensor,
                 description,
             )
@@ -128,6 +129,7 @@ class InverterSensorEntity(CoordinatorEntity, SensorEntity):
         uid: str,
         serial: str,
         version: str,
+        model: str,
         key: str,
         entity_description: SensorEntityDescription,
     ) -> None:
@@ -140,6 +142,7 @@ class InverterSensorEntity(CoordinatorEntity, SensorEntity):
             identifiers={(DOMAIN, serial)},
             manufacturer=MANUFACTURER,
             name=f"{manufacturer} {serial}",
+            model=model,
             sw_version=version,
         )
         self.key = key
