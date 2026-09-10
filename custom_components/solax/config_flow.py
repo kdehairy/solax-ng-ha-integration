@@ -4,7 +4,11 @@ import logging
 from typing import Any, override
 
 import voluptuous as vol
-from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
+from homeassistant.config_entries import (
+    SOURCE_RECONFIGURE,
+    ConfigFlow,
+    ConfigFlowResult,
+)
 from homeassistant.const import CONF_IP_ADDRESS, CONF_MODEL, CONF_PASSWORD, CONF_PORT
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import selector
@@ -31,10 +35,16 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
 class SolaxConfigFlow(ConfigFlow, domain=DOMAIN):  # pylint: disable=abstract-method
     """Handle a config flow for Solax.
 
-    Two step flow:
-    1. Get connection data and do a discovery
-    2. If multiple inverters are returned from step 1, then show them to the
-       user to choose one. If one is returned, skip this step.
+    Three entry points, all funnelled through the same discovery/finalize
+    machinery:
+    1. ``user`` / ``reconfigure`` - get connection data and do a discovery.
+       ``reconfigure`` prefills the form from the entry being reconfigured.
+    2. ``select_model`` - shown when step 1's discovery matched multiple
+       inverter models; shared by both sources above.
+
+    ``_async_finalize`` branches on ``self.source`` to either create a new
+    entry (``user``) or update, reload and abort the existing one
+    (``reconfigure``).
     """
 
     def __init__(self) -> None:
@@ -79,29 +89,38 @@ class SolaxConfigFlow(ConfigFlow, domain=DOMAIN):  # pylint: disable=abstract-me
             errors["base"] = "unknown"
         else:
             await self.async_set_unique_id(response.serial_number)
+            data = {**self._connection_data, CONF_MODEL: model}
+            if self.source == SOURCE_RECONFIGURE:
+                self._abort_if_unique_id_mismatch(reason="wrong_device")
+                return self.async_update_reload_and_abort(
+                    self._get_reconfigure_entry(), data_updates=data
+                )
             self._abort_if_unique_id_configured()
-            return self.async_create_entry(
-                title=response.serial_number,
-                data={**self._connection_data, CONF_MODEL: model},
-            )
+            return self.async_create_entry(title=response.serial_number, data=data)
 
         return self.async_show_form(
             step_id=step_id, data_schema=data_schema, errors=errors
         )
 
-    @override
-    async def async_step_user(
-        self, user_input: dict[str, Any] | None = None
+    def _connection_schema(self, step_id: str) -> vol.Schema:
+        """Return the connection schema, prefilled on the reconfigure path."""
+        if step_id == "reconfigure":
+            return self.add_suggested_values_to_schema(
+                STEP_USER_DATA_SCHEMA, self._get_reconfigure_entry().data
+            )
+        return STEP_USER_DATA_SCHEMA
+
+    async def _async_step_connection(
+        self, step_id: str, user_input: dict[str, Any] | None
     ) -> ConfigFlowResult:
         """Shows the connection form, and do the discovery.
 
         If discovery resulted in multiple inverters, show the select_model form,
         If only one skip and finalize.
         """
+        data_schema = self._connection_schema(step_id)
         if user_input is None:
-            return self.async_show_form(
-                step_id="user", data_schema=STEP_USER_DATA_SCHEMA
-            )
+            return self.async_show_form(step_id=step_id, data_schema=data_schema)
 
         errors: dict[str, str] = {}
         try:
@@ -126,12 +145,25 @@ class SolaxConfigFlow(ConfigFlow, domain=DOMAIN):  # pylint: disable=abstract-me
 
             model, inverter = next(iter(self._potential_types.items()))
             return await self._async_finalize(
-                model, inverter, step_id="user", data_schema=STEP_USER_DATA_SCHEMA
+                model, inverter, step_id=step_id, data_schema=data_schema
             )
 
         return self.async_show_form(
-            step_id="user", data_schema=STEP_USER_DATA_SCHEMA, errors=errors
+            step_id=step_id, data_schema=data_schema, errors=errors
         )
+
+    @override
+    async def async_step_user(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Shows the connection form, and do the discovery."""
+        return await self._async_step_connection("user", user_input)
+
+    async def async_step_reconfigure(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Reconfigure an existing entry by re-running discovery."""
+        return await self._async_step_connection("reconfigure", user_input)
 
     async def async_step_select_model(
         self, user_input: dict[str, Any] | None = None

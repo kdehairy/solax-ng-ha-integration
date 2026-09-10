@@ -1,13 +1,22 @@
 {
     "config": {
         "abort": {
-            "already_configured": "Device is already configured"
+            "already_configured": "Device is already configured",
+            "reconfigure_successful": "Reconfiguration was successful",
+            "wrong_device": "This device is not the one already configured for this entry. Point it back at the original inverter, or add the new one as a separate integration."
         },
         "error": {
             "cannot_connect": "Failed to connect",
             "unknown": "Unexpected error"
         },
         "step": {
+            "reconfigure": {
+                "data": {
+                    "ip_address": "IP address",
+                    "password": "Password",
+                    "port": "Port"
+                }
+            },
             "select_model": {
                 "data": {
                     "model": "Inverter model"
