@@ -1,38 +1,58 @@
-# SolaX Power (dev)
+# SolaX Power Ng
 
-Custom-integration build of the Home Assistant core `solax` integration, published for testing
-changes ahead of upstream merge (manual inverter model select).
+Custom-integration build of the Home Assistant core `solax` integration, built on the maintained
+[`solax-ng`](https://github.com/kdehairy/solax-ng) fork instead of the unmaintained `solax`
+library, and published for testing changes ahead of upstream merge (manual inverter model select,
+reconfigure support).
 
 Not affiliated with SolaX; not intended for the HACS default store — install as a custom
 repository only.
 
-## Installation via HACS
+**Shares the `solax` domain with the core integration** — only one can be active in a given HA
+instance at a time. Since Home Assistant loads `custom_components/` before core integrations of
+the same domain, installing this one takes priority; remove/disable the core `solax` integration
+first if it's already configured.
 
-1. HACS → ⋮ → Custom repositories → add this repo URL, category **Integration**.
-2. Install "SolaX Power (dev)", restart Home Assistant.
-3. Settings → Devices & Services → Add Integration → SolaX Power.
+## Installation
+
+### Via HACS
+
+1. HACS → ⋮ (top right) → **Custom repositories** → add
+   `https://github.com/kdehairy/solax-ng-ha-integration`, category **Integration**.
+2. Find "Solax Power Ng" in HACS → **Integrations**, click **Download**.
+3. Restart Home Assistant.
+4. Settings → Devices & Services → **Add Integration** → search for "SolaX Power".
+
+Once installed via HACS, updates are detected automatically from new GitHub releases.
+
+### Without HACS (manual)
+
+1. Download or clone this repository.
+2. Copy the `custom_components/solax` directory into your Home Assistant config directory, so you
+   end up with `<config>/custom_components/solax/`.
+3. Restart Home Assistant.
+4. Settings → Devices & Services → **Add Integration** → search for "SolaX Power".
+
+To update, repeat step 2 with the new version and restart again — HACS-style automatic update
+notifications don't apply to a manual install.
 
 ## Development
 
 ### Testing
 
 ```bash
-# Install development dependencies
-uv sync --all-extras
+# Install development dependencies (creates .venv)
+make init
 
-# Run tests
-uv run pytest tests/
+# Run the test suite with coverage
+make test
 
-# Run with coverage
-uv run pytest tests/ --cov=custom_components/solax --cov-report=html
+# Run the full verification suite (formatting, lint, type-check, tests)
+make verify
 ```
 
-### Notes
+### Releasing
 
-- Shares the `solax` domain with the core integration, so only one can be active in a given HA
-  instance at a time — this one takes priority since `custom_components/` is loaded first.
-- Bump the `version` field in `custom_components/solax/manifest.json` and cut a new GitHub
-  release for HACS to pick up updates.
-- Built on [`solax-ng`](https://github.com/kdehairy/solax-ng), a maintained fork of the
-  unmaintained `solax` library, which is why this integration diverges from the core `solax`
-  integration.
+1. Bump the `version` field in `custom_components/solax/manifest.json`.
+2. Create a GitHub release (tags alone are insufficient — HACS requires an actual release).
+3. HACS detects the update from the release automatically.
