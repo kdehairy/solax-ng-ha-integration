@@ -2711,25 +2711,12 @@ wheels = [
 ]
 
 [[package]]
-name = "solax"
-version = "3.2.4"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "aiohttp" },
-    { name = "voluptuous" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/89/d2/768ce989ef0a0e347cab3c68c65f9c039263c2154eeddcb0e42bf77929ff/solax-3.2.4.tar.gz", hash = "sha256:eb41480e177ad336967303e7abb3fb5b1b9741cd4c8af58d4dcb63dd3b991779", size = 33705, upload-time = "2025-12-03T15:58:38.62Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/bb/35/5903683793f2d3a3d2876276787720275962622c2e36442460f7d3a79350/solax-3.2.4-py3-none-any.whl", hash = "sha256:07d146dcbabb698e78487f63c53acf734a036f117a7d0ab968cd6dd76ae0c3f4", size = 32092, upload-time = "2025-12-03T15:58:37.546Z" },
-]
-
-[[package]]
 name = "solax-integration"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "homeassistant" },
-    { name = "solax" },
+    { name = "solax-ng" },
 ]
 
 [package.dev-dependencies]
@@ -2745,7 +2732,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "homeassistant", specifier = ">=2024.4.0" },
-    { name = "solax", specifier = "==3.2.4" },
+    { name = "solax-ng", specifier = "==3.3.0" },
 ]
 
 [package.metadata.requires-dev]
@@ -2756,6 +2743,19 @@ dev = [
     { name = "mypy", specifier = ">=1.8.0" },
     { name = "pylint", specifier = ">=3.0.0" },
     { name = "pytest-homeassistant-custom-component", specifier = "==0.13.364" },
+]
+
+[[package]]
+name = "solax-ng"
+version = "3.3.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "aiohttp" },
+    { name = "voluptuous" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/e5/a8/11b20783558b82fd5464f48004f57f2edd5b5c87ae43b11bc663d08fd35b/solax_ng-3.3.0.tar.gz", hash = "sha256:94be8da9842bf34bbed1b0a4cda6d98040b0eff0d857b45ba12206f92c54fdb1", size = 18652, upload-time = "2026-09-06T09:38:43.124Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/8c/49/b87e9bdfd91515f54fa1e1e311ef2aed9409804798ec87d84b887fb44567/solax_ng-3.3.0-py3-none-any.whl", hash = "sha256:6375685566a9ca62354e849db851c04a0809cda0323924b63e9f84a54352ee0e", size = 34616, upload-time = "2026-09-06T09:38:42.078Z" },
 ]
 
 [[package]]

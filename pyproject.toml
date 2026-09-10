@@ -20,7 +20,7 @@ classifiers = [
 ]
 dependencies = [
     "homeassistant>=2024.4.0",
-    "solax==3.2.4",
+    "solax-ng==3.3.0",
 ]
 
 [build-system]
@@ -82,7 +82,7 @@ disallow_untyped_defs = false
 
 [[tool.mypy.overrides]]
 module = [
-    "solax.*",
+    "solaxng.*",
     "pytest_homeassistant_custom_component.*",
 ]
 ignore_missing_imports = true

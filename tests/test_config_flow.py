@@ -1,6 +1,5 @@
 """Tests for the solax config flow."""
 
-import asyncio
 from unittest.mock import patch
 
 import pytest
@@ -8,8 +7,10 @@ from homeassistant import config_entries
 from homeassistant.const import CONF_IP_ADDRESS, CONF_MODEL, CONF_PASSWORD, CONF_PORT
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
-from solax.inverter import Inverter, InverterError, InverterResponse
-from solax.inverters import X1Boost, X1MiniV34
+from solaxng import InverterResponse
+from solaxng.discovery import DiscoveryError
+from solaxng.inverter import Inverter, InverterError
+from solaxng.inverters import X1Boost, X1MiniV34
 
 from custom_components.solax.const import DOMAIN
 
@@ -22,13 +23,11 @@ CONNECTION_INPUT: dict[str, str | int] = {
 
 def _build_inverter(inverter_cls: type[Inverter]) -> Inverter:
     """Build a real inverter instance to use as a discover() return value."""
-    return next(
-        iter(
-            inverter_cls.build_all_variants(
-                CONNECTION_INPUT[CONF_IP_ADDRESS],
-                CONNECTION_INPUT[CONF_PORT],
-                CONNECTION_INPUT[CONF_PASSWORD],
-            )
+    return inverter_cls(
+        inverter_cls.endpoints[0].build(
+            CONNECTION_INPUT[CONF_IP_ADDRESS],
+            CONNECTION_INPUT[CONF_PORT],
+            CONNECTION_INPUT[CONF_PASSWORD],
         )
     )
 
@@ -75,7 +74,7 @@ async def test_form_success(
             "custom_components.solax.config_flow.discover",
             return_value=discovered,
         ) as mock_discover,
-        patch("solax.RealTimeAPI.get_data", return_value=__mock_get_data()),
+        patch("solaxng.RealTimeAPI.get_data", return_value=__mock_get_data()),
         patch(
             "custom_components.solax.async_setup_entry",
             return_value=True,
@@ -93,13 +92,14 @@ async def test_form_success(
     assert result["data"] == {**CONNECTION_INPUT, CONF_MODEL: expected_model}
     assert len(mock_setup_entry.mock_calls) == 1
     assert mock_discover.call_count == 1
-    assert mock_discover.call_args.kwargs == {"return_when": asyncio.ALL_COMPLETED}
+    assert mock_discover.call_args.kwargs == {}
 
 
 @pytest.mark.parametrize(
     ("side_effect", "expected_error"),
     [
         pytest.param(ConnectionError, "cannot_connect", id="cannot_connect"),
+        pytest.param(DiscoveryError, "cannot_connect", id="discovery_error"),
         pytest.param(Exception, "unknown", id="unknown"),
     ],
 )
@@ -162,7 +162,7 @@ async def test_form_finalize_error(
             "custom_components.solax.config_flow.discover",
             return_value=discovered,
         ),
-        patch("solax.RealTimeAPI.get_data", side_effect=side_effect),
+        patch("solaxng.RealTimeAPI.get_data", side_effect=side_effect),
     ):
         result = flow
         for step_input in steps:
@@ -195,6 +195,6 @@ async def test_form_select_model_step_options(hass: HomeAssistant) -> None:
     data_schema = result["data_schema"]
     assert data_schema is not None
     assert data_schema.schema[CONF_MODEL].config["options"] == [
-        "x1_boost",
-        "x1_mini_v34",
+        {"value": "x1_boost", "label": "X1 Boost"},
+        {"value": "x1_mini_v34", "label": "X1 Mini V34"},
     ]

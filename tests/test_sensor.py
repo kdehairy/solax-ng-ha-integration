@@ -12,7 +12,7 @@ from pytest_homeassistant_custom_component.common import (
     MockConfigEntry,
     async_fire_time_changed,
 )
-from solax.inverter import InverterError
+from solaxng.inverter import InverterError
 
 from custom_components.solax import SCAN_INTERVAL
 
@@ -36,7 +36,7 @@ async def test_coordinator_update_failure(
     assert state is not None
     assert state.state != STATE_UNAVAILABLE
 
-    with patch("solax.RealTimeAPI.get_data", side_effect=InverterError):
+    with patch("solaxng.RealTimeAPI.get_data", side_effect=InverterError):
         freezer.tick(SCAN_INTERVAL)
         async_fire_time_changed(hass)
         await hass.async_block_till_done()

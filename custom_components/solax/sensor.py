@@ -21,10 +21,10 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
-from solax.units import Units
+from solaxng.units import Units
 
 from . import SolaxConfigEntry
-from .const import DOMAIN, MANUFACTURER, model_name_for_inverter
+from .const import DOMAIN, MANUFACTURER
 from .coordinator import SolaxDataUpdateCoordinator
 
 DEFAULT_PORT = 80
@@ -96,7 +96,7 @@ async def async_setup_entry(
     resp = coordinator.data
     serial = resp.serial_number
     version = resp.version
-    model = model_name_for_inverter(api.inverter)
+    model = api.inverter.friendly_name()
     entities: list[InverterSensorEntity] = []
     for sensor, (idx, measurement) in api.inverter.sensor_map().items():
         description = SENSOR_DESCRIPTIONS[(measurement.unit, measurement.is_monotonic)]

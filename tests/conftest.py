@@ -8,8 +8,8 @@ from unittest.mock import MagicMock, patch
 import pytest
 from homeassistant.const import CONF_IP_ADDRESS, CONF_PASSWORD, CONF_PORT
 from pytest_homeassistant_custom_component.common import MockConfigEntry
-from solax.inverter import InverterResponse
-from solax.inverters import X1MiniV34
+from solaxng import InverterResponse
+from solaxng.inverters import X1MiniV34
 
 from custom_components.solax.const import DOMAIN
 
@@ -29,16 +29,14 @@ def mock_config_entry() -> MockConfigEntry:
 
 
 def _build_inverter(data: Mapping[str, Any]) -> Any:
-    """Return the first X1 Mini V3.4 variant for the given connection data."""
-    variants = list(
-        X1MiniV34.build_all_variants(
+    """Return an X1 Mini V3.4 instance for the given connection data."""
+    return X1MiniV34(
+        X1MiniV34.endpoints[0].build(
             data[CONF_IP_ADDRESS],
             data[CONF_PORT],
             data[CONF_PASSWORD],
         )
     )
-    assert variants, "X1MiniV34 produced no variants"
-    return variants[0]
 
 
 def _inverter_response() -> InverterResponse:
@@ -65,9 +63,9 @@ def patch_inverter() -> Callable[[Mapping[str, Any]], Any]:
         inverter = _build_inverter(data)
         with (
             patch(
-                "custom_components.solax.discover", return_value=inverter
+                "custom_components.solax.discover", return_value={inverter}
             ) as mock_discover,
-            patch("solax.RealTimeAPI.get_data", return_value=_inverter_response()),
+            patch("solaxng.RealTimeAPI.get_data", return_value=_inverter_response()),
         ):
             yield mock_discover
 

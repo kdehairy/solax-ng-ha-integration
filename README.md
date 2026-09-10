@@ -33,3 +33,6 @@ uv run pytest tests/ --cov=custom_components/solax --cov-report=html
   instance at a time — this one takes priority since `custom_components/` is loaded first.
 - Bump the `version` field in `custom_components/solax/manifest.json` and cut a new GitHub
   release for HACS to pick up updates.
+- Built on [`solax-ng`](https://github.com/kdehairy/solax-ng), a maintained fork of the
+  unmaintained `solax` library, which is why this integration diverges from the core `solax`
+  integration.

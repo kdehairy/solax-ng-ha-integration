@@ -1,6 +1,5 @@
 """The solax component."""
 
-import asyncio
 import logging
 from dataclasses import dataclass
 from datetime import timedelta
@@ -15,12 +14,12 @@ from homeassistant.const import (
     Platform,
 )
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import ConfigEntryNotReady
+from homeassistant.exceptions import ConfigEntryError, ConfigEntryNotReady
 from homeassistant.helpers.update_coordinator import UpdateFailed
-from solax import InverterResponse, RealTimeAPI, discover
-from solax.inverter import InverterError
+from solaxng import InverterResponse, RealTimeAPI, discover
+from solaxng.inverter import InverterError
 
-from .const import INVERTER_MODELS
+from .const import DOMAIN, INVERTER_MODELS, model_name_for_inverter
 from .coordinator import SolaxDataUpdateCoordinator
 
 PLATFORMS = [Platform.SENSOR]
@@ -44,12 +43,21 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup_entry(hass: HomeAssistant, entry: SolaxConfigEntry) -> bool:
     """Set up the sensors from a ConfigEntry."""
 
-    kwargs: dict[str, Any] = {"return_when": asyncio.FIRST_COMPLETED}
-    if model := entry.data.get(CONF_MODEL):
+    # Guard against an unknown stored model key
+    model = entry.data.get(CONF_MODEL)
+    if model and model not in INVERTER_MODELS:
+        raise ConfigEntryError(
+            translation_domain=DOMAIN,
+            translation_key="unknown_model",
+            translation_placeholders={"model": model},
+        )
+
+    kwargs: dict[str, Any] = {}
+    if model:
         kwargs["inverters"] = [INVERTER_MODELS[model].load()]
 
     try:
-        inverter = await discover(
+        inverters = await discover(
             entry.data[CONF_IP_ADDRESS],
             entry.data[CONF_PORT],
             entry.data[CONF_PASSWORD],
@@ -57,7 +65,20 @@ async def async_setup_entry(hass: HomeAssistant, entry: SolaxConfigEntry) -> boo
         )
     except Exception as err:
         raise ConfigEntryNotReady from err
-    api = RealTimeAPI(inverter)
+
+    # This branch is only reachable when no CONF_MODEL is stored.
+    if len(inverters) > 1:
+        matches = sorted(
+            f"{inverter.friendly_name()} ({model_name_for_inverter(inverter)})"
+            for inverter in inverters
+        )
+        raise ConfigEntryError(
+            translation_domain=DOMAIN,
+            translation_key="multiple_matches",
+            translation_placeholders={"matches": ", ".join(matches)},
+        )
+
+    api = RealTimeAPI(next(iter(inverters)))
 
     async def _async_update() -> InverterResponse:
         try:

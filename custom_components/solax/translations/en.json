@@ -24,5 +24,13 @@
                 }
             }
         }
+    },
+    "exceptions": {
+        "unknown_model": {
+            "message": "The stored inverter model \"{model}\" is no longer supported. Please remove and re-add this integration."
+        },
+        "multiple_matches": {
+            "message": "Discovery matched multiple inverter models ({matches}). Please remove and re-add this integration to select the correct model."
+        }
     }
 }

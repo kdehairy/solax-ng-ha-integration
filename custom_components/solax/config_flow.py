@@ -1,6 +1,5 @@
 """Config flow for solax integration."""
 
-import asyncio
 import logging
 from typing import Any, override
 
@@ -9,11 +8,11 @@ from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
 from homeassistant.const import CONF_IP_ADDRESS, CONF_MODEL, CONF_PASSWORD, CONF_PORT
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import selector
-from solax import RealTimeAPI, discover
-from solax.discovery import DiscoveryError
-from solax.inverter import Inverter, InverterError
+from solaxng import RealTimeAPI, discover
+from solaxng.discovery import DiscoveryError
+from solaxng.inverter import Inverter, InverterError
 
-from .const import DOMAIN, model_name_for_inverter
+from .const import DOMAIN, friendly_name_for_model, model_name_for_inverter
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -50,7 +49,13 @@ class SolaxConfigFlow(ConfigFlow, domain=DOMAIN):  # pylint: disable=abstract-me
             {
                 vol.Required(CONF_MODEL): selector.SelectSelector(
                     selector.SelectSelectorConfig(
-                        options=sorted(self._potential_types),
+                        options=[
+                            selector.SelectOptionDict(
+                                value=model,
+                                label=friendly_name_for_model(model),
+                            )
+                            for model in sorted(self._potential_types)
+                        ],
                         mode=selector.SelectSelectorMode.DROPDOWN,
                     )
                 )
@@ -104,7 +109,6 @@ class SolaxConfigFlow(ConfigFlow, domain=DOMAIN):  # pylint: disable=abstract-me
                 user_input[CONF_IP_ADDRESS],
                 user_input[CONF_PORT],
                 user_input[CONF_PASSWORD],
-                return_when=asyncio.ALL_COMPLETED,
             )
         except ConnectionError, DiscoveryError:
             errors["base"] = "cannot_connect"
