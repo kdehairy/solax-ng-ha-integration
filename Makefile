@@ -15,6 +15,21 @@ verify: init
 test:
 	uv run pytest --cov=custom_components.solax --cov-fail-under=100 --cov-branch --cov-report=term-missing .
 
+BUMP ?= patch
+
+.PHONY: release
+release:
+	@case "$(BUMP)" in \
+		patch|minor|major) ;; \
+		*) echo "Usage: make release BUMP=patch|minor|major" >&2; exit 1 ;; \
+	esac
+	NEW_VERSION=$$(uv run python scripts/bump_manifest_version.py $(BUMP)) && \
+	uv version "$$NEW_VERSION" && \
+	git add custom_components/solax/manifest.json pyproject.toml uv.lock && \
+	git commit -m "chore: bump version to $$NEW_VERSION" && \
+	git tag -s "v$$NEW_VERSION" -m "v$$NEW_VERSION" && \
+	echo "Tagged v$$NEW_VERSION. Push with: git push origin main v$$NEW_VERSION"
+
 .PHONY: clean
 clean: clean-pyc
 
