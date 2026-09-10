@@ -1,12 +1,19 @@
 {
   "domain": "solax",
   "name": "SolaX Power",
-  "codeowners": ["@squishykid", "@Darsstar"],
+  "codeowners": [
+    "@squishykid",
+    "@Darsstar"
+  ],
   "config_flow": true,
   "documentation": "https://www.home-assistant.io/integrations/solax",
   "integration_type": "device",
   "iot_class": "local_polling",
-  "loggers": ["solaxng"],
-  "requirements": ["solax-ng==3.3.0"],
-	"version": "0.2.0"
+  "loggers": [
+    "solaxng"
+  ],
+  "requirements": [
+    "solax-ng==3.3.0"
+  ],
+  "version": "0.3.0"
 }
