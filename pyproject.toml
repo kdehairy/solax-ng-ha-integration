@@ -1,6 +1,6 @@
 [project]
 name = "solax-integration"
-version = "0.3.0"
+version = "0.4.0"
 description = "SolaX Power custom integration for Home Assistant"
 readme = "README.md"
 requires-python = ">=3.14.2"
@@ -20,7 +20,7 @@ classifiers = [
 ]
 dependencies = [
     "homeassistant>=2024.4.0",
-    "solax-ng==3.3.0",
+    "solax-ng==3.4.0",
 ]
 
 [build-system]

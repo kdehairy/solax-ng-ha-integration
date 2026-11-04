@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.14.2"
 resolution-markers = [
     "python_full_version >= '3.15'",
@@ -2712,7 +2712,7 @@ wheels = [
 
 [[package]]
 name = "solax-integration"
-version = "0.3.0"
+version = "0.4.0"
 source = { editable = "." }
 dependencies = [
     { name = "homeassistant" },
@@ -2732,7 +2732,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "homeassistant", specifier = ">=2024.4.0" },
-    { name = "solax-ng", specifier = "==3.3.0" },
+    { name = "solax-ng", specifier = "==3.4.0" },
 ]
 
 [package.metadata.requires-dev]
@@ -2747,15 +2747,15 @@ dev = [
 
 [[package]]
 name = "solax-ng"
-version = "3.3.0"
+version = "3.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp" },
     { name = "voluptuous" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/e5/a8/11b20783558b82fd5464f48004f57f2edd5b5c87ae43b11bc663d08fd35b/solax_ng-3.3.0.tar.gz", hash = "sha256:94be8da9842bf34bbed1b0a4cda6d98040b0eff0d857b45ba12206f92c54fdb1", size = 18652, upload-time = "2026-09-06T09:38:43.124Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/32/b2/ebc7a5154dc0f4579178826f8537c042c0f70487173390aca027ada554a1/solax_ng-3.4.0.tar.gz", hash = "sha256:103e2038eac03d9e1b619dcd0da0a70d7eb60ce4c48aa9ea65add9eb696de6e2", size = 20629, upload-time = "2026-11-04T16:49:47.181Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/8c/49/b87e9bdfd91515f54fa1e1e311ef2aed9409804798ec87d84b887fb44567/solax_ng-3.3.0-py3-none-any.whl", hash = "sha256:6375685566a9ca62354e849db851c04a0809cda0323924b63e9f84a54352ee0e", size = 34616, upload-time = "2026-09-06T09:38:42.078Z" },
+    { url = "https://files.pythonhosted.org/packages/60/15/164ee4159c8da128bd22e4ca5def98d9e1b3a5e6d78d3e99f752bec38c69/solax_ng-3.4.0-py3-none-any.whl", hash = "sha256:bae6d2ae4a70e140a2044498ac43ed2cc06fbbdde15a0dcb1e7fc80905e0e85f", size = 35219, upload-time = "2026-11-04T16:49:46.083Z" },
 ]
 
 [[package]]
