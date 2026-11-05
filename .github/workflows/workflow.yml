@@ -85,8 +85,16 @@ jobs:
         coverage combine
         coverage report -m --fail-under=100
 
+  validate-hacs:
+    runs-on: "ubuntu-latest"
+    steps:
+    - name: HACS validation
+      uses: "hacs/action@main"
+      with:
+        category: "integration"
+
   release:
-    needs: [coverage]
+    needs: [coverage, validate-hacs]
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     permissions:
