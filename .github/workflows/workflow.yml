@@ -6,14 +6,18 @@ on:
     tags: ['v*']
     paths:
       - 'custom_components/**/*.py'
+      - 'custom_components/**/manifest.json'
       - 'tests/**/*.py'
       - 'pyproject.toml'
+      - 'scripts/**/*.py'
       - '.github/workflows/*.yml'
   pull_request:
     paths:
       - 'custom_components/**/*.py'
+      - 'custom_components/**/manifest.json'
       - 'tests/**/*.py'
       - 'pyproject.toml'
+      - 'scripts/**/*.py'
       - '.github/workflows/*.yml'
 
 jobs:
@@ -32,6 +36,8 @@ jobs:
         enable-cache: true
     - name: Sync dependencies
       run: uv sync --python ${{ matrix.python-version }}
+    - name: Check manifest matches pyproject.toml
+      run: uv run python scripts/check_manifest_consistency.py
     - name: Check code style with black
       run: |
         uv run black --check .

@@ -4,6 +4,7 @@ init:
 
 .PHONY: verify
 verify: init
+	uv run python scripts/check_manifest_consistency.py
 	uv run black --check .
 	uv run isort --check-only --profile black .
 	uv run mypy .
