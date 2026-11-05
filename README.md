@@ -47,12 +47,18 @@ make init
 # Run the test suite with coverage
 make test
 
-# Run the full verification suite (formatting, lint, type-check, tests)
+# Run the full verification suite (manifest consistency, formatting, lint, type-check, tests)
 make verify
 ```
 
 ### Releasing
 
-1. Bump the `version` field in `custom_components/solax/manifest.json`.
-2. Create a GitHub release (tags alone are insufficient — HACS requires an actual release).
-3. HACS detects the update from the release automatically.
+1. Run `make release BUMP=patch|minor|major`. It bumps `version` in
+   `custom_components/solax/manifest.json` and `pyproject.toml`, commits both, and signs a
+   `v<version>` tag.
+2. Push the branch and the tag: `git push origin main v<version>`.
+3. The `release` CI job creates the GitHub release from the tag — a tag on its own is not enough,
+   HACS needs an actual release. HACS then detects the update automatically.
+
+Dependency versions are declared once, in `pyproject.toml`. `manifest.json` has to carry the same
+pin because that is what Home Assistant installs, so `make verify` fails if the two files disagree.
